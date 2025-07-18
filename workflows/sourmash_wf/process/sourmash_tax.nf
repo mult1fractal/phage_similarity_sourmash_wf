@@ -1,33 +1,40 @@
 process sourmash_tax {
-      publishDir "${params.output}/${name}/taxonomic-classification", mode: 'copy', pattern: "*.temporary"
+      storeDir "${params.output}/${name}/taxonomic-classification/${new_name}" 
       label 'sourmash'
     //  errorStrategy 'ignore'
     input:
-      tuple val(name), path(fasta_dir) 
+      tuple val(name), path(fasta), val(new_name)
       file(database)
-      file(metadata)
+      
     output:
       tuple val(name), path("*.temporary"), emit: tax_class_ch optional true
-    shell:
+    script:
       """
-     ###set -euxo pipefail
-      
-      for fastafile in ${fasta_dir}/*.fa; do
-        sourmash sketch dna -p k=21,scaled=100 \${fastafile}
-      done
-
-      for signature in *.sig; do
-        sourmash search -k 21 \${signature} phages.sbt.zip -o \${signature}.temporary
-      done
+      easy_name=\$( basename ${fasta})
+        sourmash sketch dna -p k=21,scaled=100 ${fasta}
     
+        sourmash search -k 21 *.sig phages.sbt.zip -o  \$easy_name.temporary
 
       """
-
     stub:
         """
-        touch ${name}_tax-class.tsv
+        touch ${name}.temporary
         """
 }
+
+
+
+
+//  for fastafile in ${fasta_dir}/*.fa; do
+//         sourmash sketch dna -p k=21,scaled=100 \${fastafile}
+//       done
+
+//       for signature in *.sig; do
+//         sourmash search -k 21 \${signature} phages.sbt.zip -o \${signature}.temporary
+//       done
+    
+
+
 
 // touch ${name}_tax-class.tsv 
 

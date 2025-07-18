@@ -2,9 +2,9 @@ include { sourmash_tax } from './process/sourmash_tax.nf'
 include { split_multi_fasta_2 } from './process/split_multi_fasta.nf'
 include { download_references_NCBI } from './process/download_tax_references'
 include { download_references_phage_scope } from './process/download_tax_references'
-include { sourmash_NCBI_tax_build } from './process/sourmash_tax_build_DB'
-include { sourmash_phage_scope_tax_build } from './process/sourmash_tax_build_DB'
-
+include { sourmash_NCBI_tax_build } from './process/sourmash_tax_build_DB.nf'
+include { sourmash_phage_scope_tax_build } from './process/sourmash_tax_build_DB.nf'
+include { concat_sourmash_results } from './process/concat_sourmash_results.nf'
 
 workflow phage_tax_classification_wf {
     take:   fasta
@@ -29,9 +29,24 @@ workflow phage_tax_classification_wf {
 
                         
                     //else { sourmash_db_ch = Channel.empty() }
-
-            
-            sourmash_tax(split_multi_fasta_2(fasta), sourmash_tax_db_ch, sourmash_tax_metadata_ch).groupTuple(remainder: true)
+                    
+                    split_multi_fasta_2(fasta) 
+                    //split_multi_fasta_2.out.view()
+                    tax_input_ch =split_multi_fasta_2.out.transpose()  // [name, fasta] are string objetcts. so i cant rename via basename
+                    renamed_ch = tax_input_ch.map { name, fasta_file ->
+                                                       def new_name = "${name}_${fasta_file.baseName}"
+                                                       tuple(name, fasta_file, new_name)
+                                                       }
+                                                                           
+                                                                        
+                    //renamed_ch.view()   // [all_NCBI-Refseq_phages_23-04-2025.id_NC_062777.1, /mnt/6tb_1/work/eb/41efc8c337f9d83736a35618799b27/all_NCBI-Refseq_phages_23-04-2025.id_NC_062777.1.fasta]
+                    sourmash_tax(renamed_ch, sourmash_tax_db_ch).groupTuple(remainder: true)
+                    
+                    //collect files back into name, [list of *temporary filepath objects]
+                    collect_results_ch = sourmash_tax.out.tax_class_ch.groupTuple()
+                    //collect_results_ch.view()
+                    concat_sourmash_results(collect_results_ch)
+                    
             
     emit:   sourmash_tax.out
 }

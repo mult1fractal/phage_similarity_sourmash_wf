@@ -47,11 +47,28 @@ if (params.profile) { exit 1, "--profile is WRONG use -profile" }
 // csv input 
 // fasta input 
         if ( params.fasta ) { 
-            fasta_raw_ch = Channel.fromPath( params.fasta, checkIfExists: true)
+            fasta_raw_ch = Channel.fromPath( params.fasta, checkIfExists: true) 
             .map { it -> tuple(it.baseName, it) } }
         else { fasta_raw_ch = Channel.empty() }
 
 
+///////////////////////////// does not work on -resume//////////////////////////////////////////////////////
+//  if ( params.multi_fasta ) { 
+//             fasta_raw_ch = Channel.fromPath( params.multi_fasta, checkIfExists: true)
+//                 .splitFasta( by: 1, file: true )
+//                 .map { file ->
+//                     def header = file.text.readLines().first().replaceAll(/^>/, '').replaceAll(/\s+/, '_')
+//                     def newFile = file.getParent() + "/${header}.fasta"
+//                     file.renameTo(newFile)
+//                     return newFile
+//                     }
+//                 .map { it -> tuple(it.baseName, it) } 
+//                 // .filter { record -> record.id =~ /^ENST0.*/ }
+//                 .view()
+//             }
+//  else { fasta_raw_ch = Channel.empty() }
+   
+///////////////////////////////////////////////////////////////////////////////////     
 
 /************************** 
 * include Workflows
@@ -85,8 +102,8 @@ def helpMSG() {
 
 
     ${c_yellow}Usage example:${c_reset}
-    nextflow run main.nf --fasta '*.fasta' -profile local,docker --ncbi_db --output test
-    nextflow run main.nf --fasta '*.fasta' -profile local,docker --phagescope_db --output test
+    nextflow run main.nf --fasta /home/mike/Workflows/What_the_Phage/test-data/all_pos_phage.fasta --databases /mnt/6tb_1/nextflow-autodownload-databases/ -profile local,docker -work-dir /mnt/6tb_1/work/ --ncbi_db --output fasta_tool_split_ncbi_new
+    nextflow run main.nf --fasta '*.fasta' -profile local,docker --phagescope_db --output test --cores 15
 
     
     ${c_yellow}Options (optional)${c_reset}
