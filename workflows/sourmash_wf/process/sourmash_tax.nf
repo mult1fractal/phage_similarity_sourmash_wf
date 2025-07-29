@@ -1,20 +1,22 @@
 process sourmash_tax {
-      storeDir "${params.output}/${name}/taxonomic-classification/${new_name}" 
+      storeDir "${params.output}/${name}/taxonomic-classification/${new_name}/test/"  //publish dir doesnt work properly in the cloud
+      //publishDir "${params.output}/${name}/taxonomic-classification/", mode: 'copy', pattern: "*temporary"
       label 'sourmash'
+      maxForks = 1000
     //  errorStrategy 'ignore'
     input:
       tuple val(name), path(fasta), val(new_name)
       file(database)
       
     output:
-      tuple val(name), path("*.temporary"), emit: tax_class_ch optional true
+      tuple val(name), path("*.temporary"), emit: tax_class_ch, optional: true
     script:
       """
       easy_name=\$( basename ${fasta})
-        sourmash sketch dna -p k=21,scaled=100 ${fasta}
+      sourmash sketch dna -p k=21,scaled=100 ${fasta}
     
-        sourmash search -k 21 *.sig phages.sbt.zip -o  \$easy_name.temporary
-
+      sourmash search -k 21 *.sig phages.sbt.zip -o \$easy_name.temporary
+      
       """
     stub:
         """
@@ -34,7 +36,7 @@ process sourmash_tax {
 //       done
     
 
-
+//
 
 // touch ${name}_tax-class.tsv 
 
