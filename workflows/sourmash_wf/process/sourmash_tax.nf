@@ -1,6 +1,7 @@
 process sourmash_tax {
-      storeDir "${params.output}/${name}/taxonomic-classification/${new_name}/test/"  //publish dir doesnt work properly in the cloud
-      //publishDir "${params.output}/${name}/taxonomic-classification/", mode: 'copy', pattern: "*temporary"
+      storeDir "${params.tmp_storage}/${name}/taxonomic-classification/${new_name}/" 
+      // storeDir "${params.output}/${name}/taxonomic-classification/${new_name}/"  //for local usage
+      // publishDir "${params.output}/${name}/taxonomic-classification/", mode: 'copy', pattern: "*temporary"
       label 'sourmash'
       maxForks = 1000
     //  errorStrategy 'ignore'

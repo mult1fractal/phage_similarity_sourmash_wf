@@ -26,10 +26,7 @@ workflow phage_tax_classification_wf {
                          sourmash_tax_metadata_ch = download_references_phage_scope.out.phagescope_tax_metadata_ch
                          }
 
-                   ///////////////////// else if (params.custom_db)
-                   ///////////////////// else if (params.build custom_db)
-                        
-                    //else { sourmash_db_ch = Channel.empty() }
+           
                     
                     split_multi_fasta_2(fasta) 
                     //split_multi_fasta_2.out.view()
