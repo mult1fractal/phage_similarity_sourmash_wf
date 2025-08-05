@@ -1,22 +1,27 @@
 process sourmash_tax {
-      storeDir "${params.tmp_storage}/${name}/taxonomic-classification/${new_name}/" 
-      // storeDir "${params.output}/${name}/taxonomic-classification/${new_name}/"  //for local usage
-      // publishDir "${params.output}/${name}/taxonomic-classification/", mode: 'copy', pattern: "*temporary"
-      label 'sourmash'
-      maxForks = 1000
+    storeDir "${params.tmp_storage}/${name}/taxonomic-classification/${new_name}/" 
+    //storeDir "${params.output}/${name}/taxonomic-classification/${new_name}/"  //for local usage
+    //publishDir "${params.output}/${name}/taxonomic-classification/${new_name}/", mode: 'copy', pattern: "*temporary"
+    label 'sourmash'
+    maxForks = 500
     //  errorStrategy 'ignore'
     input:
       tuple val(name), path(fasta), val(new_name)
       file(database)
-      
     output:
-      tuple val(name), path("*.temporary"), emit: tax_class_ch, optional: true
+      tuple val(name), path("${new_name}.temporary"), emit: tax_class_ch //, optional: true
     script:
       """
-      easy_name=\$( basename ${fasta})
+     
       sourmash sketch dna -p k=21,scaled=100 ${fasta}
     
-      sourmash search -k 21 *.sig phages.sbt.zip -o \$easy_name.temporary
+   
+      sourmash search -k 21 *.sig phages.sbt.zip -o ${new_name}.temporary
+
+      ## instead of optional true. checks if file exists, if not, create .temporary file
+      if [ ! -f "${new_name}.temporary" ]; then
+        touch "${new_name}.temporary"
+      fi
       
       """
     stub:
