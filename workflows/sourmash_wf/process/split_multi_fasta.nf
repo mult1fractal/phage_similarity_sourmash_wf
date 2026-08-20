@@ -1,4 +1,7 @@
 process split_multi_fasta_2 {
+      //storeDir "${params.tmp_storage}/${name}/split_fasta/"
+      publishDir "${params.output}/${name}/taxonomic-classification/fasta-split/", mode: 'copy', pattern: "*fasta"
+    label 'sourmash'
       label 'seqkit'
     input:
       tuple val(name), path(fasta) 

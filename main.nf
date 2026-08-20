@@ -115,6 +115,10 @@ def helpMSG() {
      --workdir              Defines the path to the temporary files [default: $params.workdir]
      
 
+
+
+    Cost: ncbi fasta 4700 sequences, database phagescope 870000 sequences, 36 euro gesamt,  cores 15,  ssd 10, ram instance 8, 6 euro  ip charge 1,5 euro
+
    
     """.stripIndent()
 }

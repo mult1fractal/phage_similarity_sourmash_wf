@@ -28,20 +28,20 @@ workflow phage_tax_classification_wf {
 
            
                     
-                    split_multi_fasta_2(fasta) 
+                    //split_multi_fasta_2(fasta) 
                     //split_multi_fasta_2.out.view()
-                    tax_input_ch =split_multi_fasta_2.out.transpose()  // [name, fasta] are string objetcts. so i cant rename via basename
-                    renamed_ch = tax_input_ch.map { name, fasta_file ->
-                                                       def new_name = "${fasta_file.baseName}"
-                                                       tuple(name, fasta_file, new_name)
-                                                       }
+                    // tax_input_ch =split_multi_fasta_2.out.transpose()  // [name, fasta] are string objetcts. so i cant rename via basename
+                    // renamed_ch = tax_input_ch.map { name, fasta_file ->
+                    //                                    def new_name = "${fasta_file.baseName}"
+                    //                                    tuple(name, fasta_file, new_name)
+                    //                                    }
                                                                            
                                                                         
                     //renamed_ch.view()  
-                    sourmash_tax(renamed_ch, sourmash_tax_db_ch).groupTuple(remainder: true)
+                    sourmash_tax(fasta, sourmash_tax_db_ch).groupTuple(remainder: true)
                     
                     //collect files back into name, [list of *temporary filepath objects]
-                    collect_results_ch = sourmash_tax.out.tax_class_ch.groupTuple()
+                    //collect_results_ch = sourmash_tax.out.tax_class_ch.groupTuple()
                     //collect_results_ch.view()
                    // concat_sourmash_results(collect_results_ch)
                     

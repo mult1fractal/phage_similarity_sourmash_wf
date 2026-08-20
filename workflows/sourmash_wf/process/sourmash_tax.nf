@@ -1,26 +1,27 @@
 process sourmash_tax {
-    storeDir "${params.tmp_storage}/${name}/taxonomic-classification/${new_name}/" 
+    storeDir "${params.tmp_storage}/taxonomic-classification/${name}/" 
     //storeDir "${params.output}/${name}/taxonomic-classification/${new_name}/"  //for local usage
     //publishDir "${params.output}/${name}/taxonomic-classification/${new_name}/", mode: 'copy', pattern: "*temporary"
     label 'sourmash'
     maxForks = 500
-    //  errorStrategy 'ignore'
+    errorStrategy 'retry'
+    maxRetries 3
     input:
-      tuple val(name), path(fasta), val(new_name)
+      tuple val(name), path(fasta) //, val(new_name)
       file(database)
     output:
-      tuple val(name), path("${new_name}.temporary"), emit: tax_class_ch //, optional: true
+      tuple val(name), path("${name}.temporary"), emit: tax_class_ch //, optional: true
     script:
       """
      
       sourmash sketch dna -p k=21,scaled=100 ${fasta}
     
    
-      sourmash search -k 21 *.sig phages.sbt.zip -o ${new_name}.temporary
+      sourmash search -k 21 *.sig phages.sbt.zip -o ${name}.temporary
 
       ## instead of optional true. checks if file exists, if not, create .temporary file
-      if [ ! -f "${new_name}.temporary" ]; then
-        touch "${new_name}.temporary"
+      if [ ! -f "${name}.temporary" ]; then
+        touch "${name}.temporary"
       fi
       
       """

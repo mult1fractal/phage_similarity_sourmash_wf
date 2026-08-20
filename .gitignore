@@ -2,4 +2,5 @@
 .nextflow.*
 .nextflow/
 results/
+results_cloud_run/
 
